@@ -235,14 +235,17 @@ class ReadmeOrchestrator:
     def _create_section_prompt(self, section_type: str, context: List[Dict]) -> str:
         """Crée le prompt pour une section"""
 
+    def _create_section_prompt(self, section_type: str, context: List[Dict]) -> str:
+        """Crée le prompt pour une section"""
+
         section_instructions = {
-            "project_title": "Generate a clear project title and brief one-line description. Format: # Title followed by description.",
-            "project_description": "Write a comprehensive description explaining what this project does, its main features, and technologies used. Use proper markdown formatting.",
-            "installation": "Provide clear installation instructions including dependencies and setup steps. Include code blocks for commands.",
-            "usage": "Show how to use this project with practical examples. Include code examples in markdown code blocks.",
-            "project_structure": "Describe the project organization, main modules, and key components. Explain the purpose of important files.",
-            "api_reference": "Document the main classes, functions, and their usage with clear examples.",
-            "examples": "Provide practical examples and usage scenarios with code snippets."
+            "project_title": f"Generate ONLY a clear project title (using # header) and brief one-line description for the project named '{self.project_info.get('name', 'Unknown')}'. Do not include any other text or ask for modifications.",
+            "project_description": "Write a comprehensive description explaining what this project does, its main features, and technologies used. Start directly with the content, do not include section headers like ## Description.",
+            "installation": "Provide clear installation instructions including dependencies and setup steps. Include code blocks for commands. Start directly with the content.",
+            "usage": "Show how to use this project with practical examples. Include code examples in markdown code blocks. Start directly with the content.",
+            "project_structure": "Describe the project organization, main modules, and key components. Explain the purpose of important files. Start directly with the content.",
+            "api_reference": "Document the main classes, functions, and their usage with clear examples. Start directly with the content.",
+            "examples": "Provide practical examples and usage scenarios with code snippets. Start directly with the content."
         }
 
         instruction = section_instructions.get(section_type, "Generate appropriate content for this section.")
@@ -270,12 +273,14 @@ Code Context:
 Requirements:
 - Write in clear, professional markdown
 - Be concise but informative
-- Include relevant code examples
-- Use proper markdown formatting (headers, code blocks, lists)
+- Include relevant code examples where appropriate
+- Use proper markdown formatting (code blocks, lists)
 - Focus on practical, actionable information
-- Do not include duplicate headers
+- Do NOT include section headers (like ## Description) - they will be added automatically
+- Do NOT ask for modifications or feedback
+- Generate ONLY the content for this specific section
 
-Generate the {section_type.replace('_', ' ')} section:"""
+Content:"""
 
         return prompt
 
@@ -334,8 +339,8 @@ Generate the {section_type.replace('_', ' ')} section:"""
     def _get_section_title(self, section_type: str) -> str:
         """Retourne le titre formaté pour une section"""
         titles = {
-            "project_title": "# Project Title",
-            "project_description": "## Description",
+            "project_title": "",  # Pas de titre supplémentaire
+            "project_description": "",  # Pas de header pour description
             "installation": "## Installation",
             "usage": "## Usage",
             "project_structure": "## Project Structure",
@@ -369,9 +374,13 @@ Generate the {section_type.replace('_', ' ')} section:"""
         # Ajouter chaque section
         for section in self.readme_sections:
             if section.section_type == "project_title":
-                # Titre sans ##
+                # Titre principal - ne pas ajouter de header supplémentaire
+                readme_parts.append(section.content)
+            elif section.section_type == "project_description":
+                # Description directement après le titre sans header
                 readme_parts.append(section.content)
             else:
+                # Autres sections avec leur header
                 readme_parts.append(f"{section.title}\n\n{section.content}")
 
         return "\n\n".join(readme_parts)

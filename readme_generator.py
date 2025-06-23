@@ -244,10 +244,6 @@ def main():
             model_name=args.model
         )
 
-        if args.no_llm:
-            print("⚠️  Mode sans LLM activé - génération basique")
-            orchestrator.ollama_available = False
-
         readme_content = orchestrator.generate_readme()
 
         # Créer le dossier generations s'il n'existe pas
@@ -294,10 +290,7 @@ def main():
         print(f"📁 Archivé dans: {generations_path}")
         print(f"🗄️  Base RAG: {args.rag_db}.faiss")
 
-        if orchestrator.ollama_available:
-            print(f"🤖 Modèle utilisé: {args.model}")
-        else:
-            print("⚠️  Généré en mode fallback (sans LLM)")
+        print(f"🤖 Modèle utilisé: {args.model}")
 
         # Afficher aperçu du README
         print(f"\n📖 APERÇU DU README:")
